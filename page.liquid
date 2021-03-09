@@ -1,0 +1,52 @@
+<div class="grid">
+  <div class="grid__item large--eight-twelfths push--large--two-twelfths">
+    <div class="section-header">
+      <h1 class="page-title">{{ page.title }}</h1>
+    </div>
+  </div>
+</div>
+
+  {% for order in customer.orders %}
+		{% for line_item in order.line_items %}
+      {% if line_item.title contains "Package" %}
+				{% if line_item.title contains "1-Day" %}
+					{% assign timeleft = 86400 %}
+				{% elsif line_item.title contains "7-Day" %}
+					{% assign timeleft = 604800 %}
+				{% elsif line_item.title contains "30-Day" %}
+					{% assign timeleft = 2592000 %}
+				{% elsif line_item.title contains "180-Day" %}
+          {% assign timeLeft = 15552000 %}
+        {% elsif line_item.title contains "365-Day" %}
+          {% assign timeLeft = 31536000 %}
+        {% elsif line_item.title contains "Weekend Promo" %}
+          {% assign timeLeft = 345600 %}
+        {% endif %}
+
+				{% assign ordercreatedat = order.created_at | date: '%s' | plus: timeleft %}
+  				{% assign today_date = 'now' | date: '%s' | plus: 0 %}
+
+				{% if today_date < ordercreatedat %}
+					{% assign personal = true %}
+					{% break %}
+				{% else %}
+					{% assign personal = false %}
+
+				{% endif %}
+              {% endif %}
+          {% endfor %}
+
+          {% if personal == true %}
+               {% break %}
+          {% endif %}
+  {% endfor %}
+{% if personal == true %}
+  		<div class="rte">
+    	{{ page.content }}
+        <center> <p>Your membership is valid until: {{ expirationDate | date: "%s" | date: "%B %d, %Y %I:%M%p" }} </p></center>
+  		</div>
+{% else %}
+       <script>
+         window.location = "https://your-store-name.com/collections/all"
+       </script>
+{%endif %}
